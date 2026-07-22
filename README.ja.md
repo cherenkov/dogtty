@@ -57,20 +57,10 @@ dogtty uninstall                        # 全部削除
 
 ## 運用
 
-```bash
-# 自動実行を止める
-launchctl bootout gui/$(id -u)/local.dogtty
-
-# 自動実行を再開する
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.dogtty.plist
-
-# ログを見る（1MBを超えると自動で切り詰める）
-cat ~/Library/Logs/dogtty.log
-```
-
-インストール後に犬・テイスト・間隔を変えるときは `dogtty config`。各質問には現在の設定が表示され、Enterでそのまま維持できるので、変えたい項目だけ入力すればいい。
-
-Ghosttyが起動していないときは生成せずスキップする（無駄なAPI呼び出しをしない）。
+- 犬・テイスト・間隔の変更はいつでも `dogtty config`。各質問には現在の設定が表示され、Enterでそのまま維持できるので、変えたい項目だけ入力すればいい
+- ログは `~/Library/Logs/dogtty.log`（1MBを超えると自動で切り詰める）
+- Ghosttyが起動していないときは生成せずスキップする（無駄なAPI呼び出しをしない）
+- CLIの出力メッセージは英語のみ
 
 ## アンインストール
 

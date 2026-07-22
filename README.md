@@ -70,23 +70,12 @@ as generation prompts.)
 
 ## Operations
 
-```bash
-# Stop the automatic runs
-launchctl bootout gui/$(id -u)/local.dogtty
-
-# Resume the automatic runs
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.dogtty.plist
-
-# View logs (auto-truncated when it exceeds 1MB)
-cat ~/Library/Logs/dogtty.log
-```
-
-To change the dog, the look or the interval after install, run
-`dogtty config` — each question is prefilled with the current setting,
-so Enter skips through what you don't want to change.
-
-When Ghostty is not running, dogtty skips generation entirely (no wasted
-API calls).
+- Change the dog, the look or the interval anytime with `dogtty config` —
+  each question is prefilled with the current setting, so Enter skips
+  what you don't want to change
+- Logs go to `~/Library/Logs/dogtty.log` (auto-truncated over 1MB)
+- When Ghostty is not running, dogtty skips generation entirely (no wasted
+  API calls)
 
 ## Uninstall
 

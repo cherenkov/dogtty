@@ -17,10 +17,6 @@
 # requests); generation retries up to 3 times with a 15-second wait.
 set -euo pipefail
 
-# Messages follow the user's locale: Japanese when LANG is ja*, English otherwise
-JA=0; [[ "${LANG:-}" == ja* ]] && JA=1
-msg() { if [[ "${JA}" == 1 ]]; then echo "$2"; else echo "$1"; fi }
-
 BIN_TARGET="$HOME/.local/bin/dogtty"
 LABEL="local.dogtty"
 PLIST="$HOME/Library/LaunchAgents/${LABEL}.plist"
@@ -36,17 +32,12 @@ valid_interval() { [[ "$1" =~ ^[0-9]+$ ]] && (( $1 >= 60 )); }
 
 # Prompt for the interval; Enter keeps the current value (shown in brackets)
 ask_interval() {
-  local cur="$1" prompt val
-  if [[ "${JA}" == 1 ]]; then
-    prompt="犬が替わる間隔を秒で入力してください（最小60） [Enterで現在のまま: ${cur}]: "
-  else
-    prompt="How often should the dog change, in seconds? (min 60) [Enter to keep: ${cur}]: "
-  fi
+  local cur="$1" val
   while :; do
-    read -r -p "$prompt" val
+    read -r -p "How often should the dog change, in seconds? (min 60) [Enter to keep: ${cur}]: " val
     val="${val:-$cur}"
     if valid_interval "$val"; then echo "$val"; return; fi
-    msg "Please enter a number of 60 or more." "60以上の数字を入力してください。" >&2
+    echo "Please enter a number of 60 or more." >&2
   done
 }
 
@@ -55,29 +46,16 @@ ask_interval() {
 choose_subject() {
   local current="$1" sel custom
   while :; do
-    if [[ "${JA}" == 1 ]]; then
-      {
-        echo "どの犬を表示しますか？（現在: ${current}）"
-        echo "  1) 柴犬"
-        echo "  2) シーズー"
-        echo "  3) コーギー"
-        echo "  4) トイプードル"
-        echo "  5) ゴールデンレトリバー"
-        echo "  6) 自由入力"
-      } >&2
-      read -r -p "選択 [Enterで現在のまま]: " sel
-    else
-      {
-        echo "Which dog should appear? (current: ${current})"
-        echo "  1) Shiba inu"
-        echo "  2) Shih tzu"
-        echo "  3) Corgi"
-        echo "  4) Toy poodle"
-        echo "  5) Golden retriever"
-        echo "  6) Custom prompt"
-      } >&2
-      read -r -p "Choice [Enter to keep]: " sel
-    fi
+    {
+      echo "Which dog should appear? (current: ${current})"
+      echo "  1) Shiba inu"
+      echo "  2) Shih tzu"
+      echo "  3) Corgi"
+      echo "  4) Toy poodle"
+      echo "  5) Golden retriever"
+      echo "  6) Custom prompt"
+    } >&2
+    read -r -p "Choice [Enter to keep]: " sel
     case "$sel" in
       "") echo "$current"; return ;;
       1) echo "cute shiba inu"; return ;;
@@ -86,32 +64,12 @@ choose_subject() {
       4) echo "cute toy poodle"; return ;;
       5) echo "cute golden retriever"; return ;;
       6)
-        if [[ "${JA}" == 1 ]]; then
-          read -r -p "プロンプトを英語で入力（例: cute black cat）: " custom
-        else
-          read -r -p "Enter a custom prompt (e.g. cute black cat): " custom
-        fi
+        read -r -p "Enter a custom prompt (e.g. cute black cat): " custom
         if [[ -n "$custom" ]]; then echo "$custom"; return; fi
         ;;
     esac
-    msg "Please choose 1-6." "1〜6で選んでください。" >&2
+    echo "Please choose 1-6." >&2
   done
-}
-
-# save_pref <file> <value>
-save_pref() {
-  mkdir -p "$(dirname "$1")"
-  printf '%s\n' "$2" > "$1"
-}
-
-# Human-readable label for a stored style value (for menu display)
-style_label() {
-  case "$1" in
-    mixed) msg "Mixed" "おまかせ" ;;
-    illustration) msg "Illustration" "イラスト風" ;;
-    photo) msg "Photo" "写真風" ;;
-    *) echo "$1" ;;
-  esac
 }
 
 # Interactive picker for the image tone; Enter keeps the current value.
@@ -119,41 +77,32 @@ style_label() {
 choose_style() {
   local current="$1" sel custom
   while :; do
-    if [[ "${JA}" == 1 ]]; then
-      {
-        echo "画像のテイストは？（現在: $(style_label "$current")）"
-        echo "  1) おまかせ（イラスト風・写真風からランダム）"
-        echo "  2) イラスト風（水彩・パステル・フラット・色鉛筆）"
-        echo "  3) 写真風（DSLR・フィルム）"
-        echo "  4) 自由入力"
-      } >&2
-      read -r -p "選択 [Enterで現在のまま]: " sel
-    else
-      {
-        echo "Which look do you prefer? (current: $(style_label "$current"))"
-        echo "  1) Mixed (random illustration & photo)"
-        echo "  2) Illustration (watercolor, pastel, flat, colored pencil)"
-        echo "  3) Photo (DSLR, film)"
-        echo "  4) Custom style prompt"
-      } >&2
-      read -r -p "Choice [Enter to keep]: " sel
-    fi
+    {
+      echo "Which look do you prefer? (current: ${current})"
+      echo "  1) Mixed (random illustration & photo)"
+      echo "  2) Illustration (watercolor, pastel, flat, colored pencil)"
+      echo "  3) Photo (DSLR, film)"
+      echo "  4) Custom style prompt"
+    } >&2
+    read -r -p "Choice [Enter to keep]: " sel
     case "$sel" in
       "") echo "$current"; return ;;
       1) echo "mixed"; return ;;
       2) echo "illustration"; return ;;
       3) echo "photo"; return ;;
       4)
-        if [[ "${JA}" == 1 ]]; then
-          read -r -p "テイストを英語で入力（例: pixel art）: " custom
-        else
-          read -r -p "Enter a custom style (e.g. pixel art): " custom
-        fi
+        read -r -p "Enter a custom style (e.g. pixel art): " custom
         if [[ -n "$custom" ]]; then echo "$custom"; return; fi
         ;;
     esac
-    msg "Please choose 1-4." "1〜4で選んでください。" >&2
+    echo "Please choose 1-4." >&2
   done
+}
+
+# save_pref <file> <value>
+save_pref() {
+  mkdir -p "$(dirname "$1")"
+  printf '%s\n' "$2" > "$1"
 }
 
 write_plist() {
@@ -189,8 +138,7 @@ register_launchd() {
   for i in 1 2 3 4 5; do
     launchctl bootstrap "gui/$(id -u)" "$PLIST" 2>/dev/null && return 0
     if [[ "$i" == 5 ]]; then
-      msg "Failed to register with launchd. Run manually: launchctl bootstrap gui/$(id -u) $PLIST" \
-          "launchdへの登録に失敗しました。手動で実行してください: launchctl bootstrap gui/$(id -u) $PLIST" >&2
+      echo "Failed to register with launchd. Run manually: launchctl bootstrap gui/$(id -u) $PLIST" >&2
       return 1
     fi
     sleep "$i"
@@ -233,17 +181,9 @@ if [[ "${1:-}" == "install" ]]; then
   write_plist "$INTERVAL"
   register_launchd
 
-  msg "dogtty installed (a new dog every ${INTERVAL} seconds)" \
-      "dogtty をインストールしました（${INTERVAL}秒ごとに犬が替わります）"
-  # Heads-up if ~/.local/bin isn't in PATH (only affects manual runs; launchd is fine)
-  case ":${PATH}:" in
-    *":${HOME}/.local/bin:"*) ;;
-    *) msg "Note: ~/.local/bin is not in your PATH. Add it if you want to run 'dogtty' manually." \
-           "注意: ~/.local/bin にPATHが通っていません。手動で 'dogtty' を実行するにはPATHに追加してください。" ;;
-  esac
+  echo "dogtty installed (a new dog every ${INTERVAL} seconds)"
   echo ""
-  msg "Now add the following to your Ghostty config (~/.config/ghostty/config):" \
-      "あとは Ghostty 設定（~/.config/ghostty/config）に以下を追記してください:"
+  echo "Now add the following to your Ghostty config (~/.config/ghostty/config):"
   echo ""
   echo "  background-image = ~/.local/share/dogtty/dogtty.png"
   echo "  background-image-position = bottom-right"
@@ -258,27 +198,24 @@ if [[ "${1:-}" == "uninstall" ]]; then
   rm -rf "$IMG_DIR" "$HOME/.config/dogtty"
   # Unlinking the running script is safe: bash keeps reading from the open fd
   rm -f "$BIN_TARGET"
-  msg "dogtty uninstalled" "dogtty をアンインストールしました"
-  msg "Please remove the 4 background-image lines from your Ghostty config (~/.config/ghostty/config) manually" \
-      "Ghostty 設定（~/.config/ghostty/config）の background-image 4行は手動で削除してください"
+  echo "dogtty uninstalled"
+  echo "Please remove the 4 background-image lines from your Ghostty config (~/.config/ghostty/config) manually"
   exit 0
 fi
 
 if [[ "${1:-}" == "config" ]]; then
   if [[ ! -f "$PLIST" ]]; then
-    msg "dogtty is not installed. Run: dogtty install" \
-        "dogtty がインストールされていません。先に dogtty install を実行してください。" >&2
+    echo "dogtty is not installed. Run: dogtty install" >&2
     exit 1
   fi
   if [[ ! -t 0 ]]; then
-    msg "dogtty config is interactive; run it in a terminal." \
-        "dogtty config は対話専用です。ターミナルで実行してください。" >&2
+    echo "dogtty config is interactive; run it in a terminal." >&2
     exit 1
   fi
   INTERVAL=$(run_wizard)
   write_plist "$INTERVAL"
   register_launchd
-  msg "Settings updated (interval: ${INTERVAL}s)" "設定を更新しました（間隔: ${INTERVAL}秒）"
+  echo "Settings updated (interval: ${INTERVAL}s)"
   exit 0
 fi
 
@@ -292,7 +229,7 @@ fi
 # Do nothing when Ghostty isn't running (no display target, so don't burn API calls)
 GHOSTTY_PID=$(ps aux | grep "Ghostty.app/Contents/MacOS/ghostty" | grep -v grep | awk '{print $2}' | head -1)
 if [[ -z "${GHOSTTY_PID}" ]]; then
-  msg "Ghostty is not running; skipping" "Ghostty が起動していないためスキップ"
+  echo "Ghostty is not running; skipping"
   exit 0
 fi
 
@@ -329,7 +266,7 @@ SEED=$RANDOM
 TMP=$(mktemp -t dogtty)
 trap 'rm -f "$TMP"' EXIT
 
-msg "Generating: ${PROMPT}" "生成中: ${PROMPT}"
+echo "Generating: ${PROMPT}"
 for attempt in 1 2 3; do
   CODE=$(curl -sL --max-time 60 -o "$TMP" -w "%{http_code}" \
     -A "dogtty (https://github.com/cherenkov/dogtty)" \
@@ -338,18 +275,16 @@ for attempt in 1 2 3; do
     break
   fi
   if [[ "$attempt" == 3 ]]; then
-    msg "Generation failed (HTTP ${CODE}). The service seems busy; try again in a minute." \
-        "生成失敗 (HTTP ${CODE})。混雑しているので1分ほど待ってから再実行してください。" >&2
+    echo "Generation failed (HTTP ${CODE}). The service seems busy; try again in a minute." >&2
     exit 1
   fi
-  msg "Busy (HTTP ${CODE}). Retrying in 15s (${attempt}/3)..." \
-      "混雑中 (HTTP ${CODE})。15秒待って再試行します (${attempt}/3)..."
+  echo "Busy (HTTP ${CODE}). Retrying in 15s (${attempt}/3)..."
   sleep 15
 done
 
 mkdir -p "$IMG_DIR"
 sips -s format png -Z 300 "$TMP" --out "$IMG_DIR/dogtty.png" >/dev/null
-msg "New dog: ${PROMPT} (seed=${SEED})" "新しい犬: ${PROMPT} (seed=${SEED})"
+echo "New dog: ${PROMPT} (seed=${SEED})"
 
 # Reload Ghostty's config via SIGUSR2 (never send any other signal)
-kill -USR2 "${GHOSTTY_PID}" && msg "Ghostty reloaded (pid ${GHOSTTY_PID})" "Ghostty をリロードしました (pid ${GHOSTTY_PID})"
+kill -USR2 "${GHOSTTY_PID}" && echo "Ghostty reloaded (pid ${GHOSTTY_PID})"
