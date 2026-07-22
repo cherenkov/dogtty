@@ -32,9 +32,12 @@ generates its own launchd plist), so downloading that one file is enough.
 ## Setup
 
 ```bash
-./dogtty install        # asks for the dog, the look and the interval interactively
-./dogtty install 600    # non-interactive: interval as an argument (min 60), defaults otherwise
+./dogtty install
 ```
+
+It asks for the dog, the look and the interval (Enter keeps the shown
+value). In non-interactive contexts it installs silently with the defaults
+(shiba inu, mixed, 180s).
 
 The dog picker offers shiba inu (default), shih tzu, corgi, toy poodle,
 golden retriever, or a free-form prompt (which doesn't even have to be a
@@ -58,8 +61,7 @@ background-image-opacity = 0.3
 dogtty                                  # generate a random shiba now
 dogtty "corgi puppy, pixel art"         # generate with your own prompt
 dogtty config                           # change the dog, look and interval interactively
-dogtty config 600                       # set only the interval directly (seconds, min 60)
-dogtty install [seconds]                # (re)install
+dogtty install                          # (re)install
 dogtty uninstall                        # remove everything
 ```
 
@@ -80,8 +82,8 @@ cat ~/Library/Logs/dogtty.log
 ```
 
 To change the dog, the look or the interval after install, run
-`dogtty config` (interactive) or `dogtty config 600` (interval only).
-Re-running `./dogtty install` works too.
+`dogtty config` — each question is prefilled with the current setting,
+so Enter skips through what you don't want to change.
 
 When Ghostty is not running, dogtty skips generation entirely (no wasted
 API calls).

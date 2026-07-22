@@ -27,9 +27,10 @@ launchd (180秒ごと)
 ## セットアップ
 
 ```bash
-./dogtty install        # 犬・テイスト・間隔を対話形式で聞かれる
-./dogtty install 600    # 非対話: 間隔を引数指定（最小60秒）、犬とテイストは既定値
+./dogtty install
 ```
+
+犬・テイスト・間隔を対話形式で聞かれる（Enterで表示中の値のまま）。非対話環境では既定値（柴犬・おまかせ・180秒）で無言インストールされる。
 
 犬の選択肢は柴犬（デフォルト）・シーズー・コーギー・トイプードル・ゴールデンレトリバー・自由入力（犬以外でも可）。テイストの選択肢はおまかせ（デフォルト）・イラスト風のみ・写真風のみ・自由入力（例: pixel art）。選択は `~/.config/dogtty/` 配下に保存される。
 
@@ -48,8 +49,7 @@ background-image-opacity = 0.3
 dogtty                                  # おまかせ柴犬を今すぐ生成
 dogtty "corgi puppy, pixel art"         # プロンプト指定で生成
 dogtty config                           # 犬・テイスト・間隔を対話形式で変更
-dogtty config 600                       # 間隔だけ直接指定（秒、最小60）
-dogtty install [秒]                     # （再）インストール
+dogtty install                          # （再）インストール
 dogtty uninstall                        # 全部削除
 ```
 
@@ -68,7 +68,7 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/local.dogtty.plist
 cat ~/Library/Logs/dogtty.log
 ```
 
-インストール後に犬・テイスト・間隔を変えるときは `dogtty config`（対話形式）か `dogtty config 600`（間隔のみ）。`./dogtty install` の再実行でも変えられる。
+インストール後に犬・テイスト・間隔を変えるときは `dogtty config`。各質問には現在の設定が表示され、Enterでそのまま維持できるので、変えたい項目だけ入力すればいい。
 
 Ghosttyが起動していないときは生成せずスキップする（無駄なAPI呼び出しをしない）。
 
